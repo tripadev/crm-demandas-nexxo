@@ -1,0 +1,13 @@
+{
+  "name": "crm-demandas-nexxo",
+  "version": "1.0.0",
+  "description": "Painel de Kanban de alta performance para o CRM de Demandas NEXXO",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["kanban", "crm", "franquias", "demandas", "marketing"],
+  "author": "NEXXO",
+  "license": "ISC"
+}

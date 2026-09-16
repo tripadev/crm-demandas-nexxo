@@ -1,0 +1,93 @@
+/* ==========================================================================
+   CRM DEMANDAS - NEXXO | DESIGN SYSTEM & VARIABLES
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Cores Principais do Brand Nexxo */
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: #eef2ff;
+  --primary-glow: rgba(99, 102, 241, 0.25);
+
+  /* Botão Azul Escuro Corporativo Solicitado */
+  --btn-dark-blue: #0f172a;
+  --btn-dark-blue-hover: #1e293b;
+  --btn-dark-blue-glow: rgba(15, 23, 42, 0.25);
+  
+  --brand-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  --brand-gradient-hover: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+  
+  /* Superfícies e Fundos */
+  --bg-app: #f8fafc;
+  --bg-sidebar: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-column: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fcfdfe;
+  --bg-overlay: rgba(15, 23, 42, 0.55);
+  
+  /* Bordas e Divisórias */
+  --border-subtle: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-focus: #6366f1;
+  
+  /* Tipografia */
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  --text-on-primary: #ffffff;
+  
+  /* Cores das 6 Colunas Operacionais */
+  --col-demandas: #3b82f6;       /* Azul royal */
+  --col-demandas-bg: #eff6ff;
+  --col-conteudo: #8b5cf6;       /* Roxo vibrante */
+  --col-conteudo-bg: #f5f3ff;
+  --col-designer: #f97316;       /* Laranja criativo */
+  --col-designer-bg: #fff7ed;
+  --col-trafego: #06b6d4;        /* Ciano tráfego */
+  --col-trafego-bg: #ecfeff;
+  --col-aprovacao: #eab308;      /* Amarelo validação */
+  --col-aprovacao-bg: #fefce8;
+  --col-entrega: #10b981;        /* Verde sucesso */
+  --col-entrega-bg: #ecfdf5;
+
+  /* Prioridades */
+  --prio-sem: #64748b;
+  --prio-sem-bg: #f1f5f9;
+  --prio-baixa: #0284c7;
+  --prio-baixa-bg: #e0f2fe;
+  --prio-media: #d97706;
+  --prio-media-bg: #fef3c7;
+  --prio-alta: #e11d48;
+  --prio-alta-bg: #ffe4e6;
+  --prio-urgente: #7f1d1d;
+  --prio-urgente-bg: #fecdd3;
+
+  /* Sombras e Elevação */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 2px 5px -1px rgba(15, 23, 42, 0.06), 0 1px 3px -1px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 10px 20px -3px rgba(15, 23, 42, 0.09), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+  --shadow-dragging: 0 20px 30px -5px rgba(99, 102, 241, 0.25), 0 10px 15px -3px rgba(15, 23, 42, 0.12);
+  --shadow-modal: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  
+  /* Raios de Borda */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Transições Suaves */
+  --trans-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-spring: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal do Franqueado | NEXXO Demandas</title>
+  <meta name="description" content="Abertura oficial e acompanhamento de demandas de marketing, criativos e tráfego para franqueados da rede NEXXO.">
+  
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/modals.css">
+
+  <style>
+    body {
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      display: block;
+      height: auto;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    .portal-nav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-light);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .portal-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .portal-container {
+      max-width: 920px;
+      margin: 36px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .portal-hero {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .portal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: var(--radius-full);
+      margin-bottom: 12px;
+      border: 1px solid #c7d2fe;
+    }
+
+    .portal-hero h1 {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.8px;
+    }
+
+    .portal-hero p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 580px;
+      margin: 8px auto 0 auto;
+    }
+
+    .portal-card-form {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--border-light);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+
+    /* Fixed Workspace Badge */
+    .fixed-workspace-box {
+      background: #f8fafc;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fixed-workspace-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    /* Cards de Acompanhamento no Portal */
+    .tracking-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .tracking-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all var(--trans-fast);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tracking-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-card-hover);
+      border-color: var(--primary);
+    }
+
+    .pipeline-step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.74rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    .pipe-demandas { background: #eff6ff; color: #1d4ed8; }
+    .pipe-conteudo { background: #f5f3ff; color: #6d28d9; }
+    .pipe-designer { background: #fff7ed; color: #c2410c; }
+    .pipe-trafego  { background: #ecfeff; color: #0e7490; }
+    .pipe-aprovacao { background: #fefce8; color: #a16207; }
+    .pipe-entrega  { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+
+    /* Aviso de Link Desativado */
+    .disabled-link-banner {
+      background-color: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="portal-nav">
+    <a href="index.html" class="portal-brand">
+      <div class="brand-icon">N</div>
+      <div>
+        <strong style="font-family: var(--font-display); font-size: 1.1rem; display: block; line-height: 1.1;">NEXXO FRANQUIAS</strong>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Central de Demandas do Franqueado</span>
+      </div>
+    </a>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <a href="index.html" class="btn btn-secondary" style="font-size: 0.85rem;">
+        ← Voltar ao Kanban Interno
+      </a>
+    </div>
+  </header>
+
+  <main class="portal-container">
+    
+    <!-- Banner de Link Desativado (se aplicável) -->
+    <div id="disabledLinkBanner" class="disabled-link-banner" style="display: none;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+      </svg>
+      <div>
+        <span>Acesso temporariamente desativado pela equipe NEXXO.</span>
+        <p style="font-size: 0.82rem; font-weight: normal; margin: 2px 0 0 0;">
+          Solicite à equipe gestora a reativação do seu link de acompanhamento de demandas.
+        </p>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="portal-hero">
+      <span class="portal-badge">⚡ Portal Oficial do Franqueado</span>
+      <h1>Abertura & Acompanhamento de Demandas</h1>
+      <p>Cadastre suas solicitações de marketing e criativos. O prazo oficial de entrega será estipulado pela equipe de produção da NEXXO.</p>
+    </div>
+
+    <!-- Formulário de Demanda (Sem campo de data limite e com Unidade Fixada) -->
+    <section class="portal-card-form" id="portalFormSection">
+      <h2 class="section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        Nova Solicitação de Demanda
+      </h2>
+
+      <form id="portalDemandForm" onsubmit="handlePortalSubmit(event)" style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <div class="form-grid-2">
+          <!-- Unidade / Franquia Fixada ao Workspace do Usuário -->
+          <div class="form-group">
+            <label class="form-label">SUA FRANQUIA / UNIDADE (WORKSPACE VINCULADO)</label>
+            <div class="fixed-workspace-box">
+              <div class="fixed-workspace-icon">📍</div>
+              <div>
+                <strong id="fixedClientNameDisplay" style="font-size: 0.95rem; color: var(--text-main);">Nexxo Jardins</strong>
+                <span id="fixedWorkspaceDisplay" style="font-size: 0.75rem; color: var(--text-muted); display: block;">Workspace: nexxo-jardins (Acesso exclusivo)</span>
+              </div>
+            </div>
+            <input type="hidden" id="portalClientHidden" value="Nexxo Jardins">
+          </div>
+
+          <!-- Tipo de Demanda -->
+          <div class="form-group">
+            <label for="portalCategory" class="form-label">TIPO DA DEMANDA *</label>
+            <select id="portalCategory" class="form-select" required>
+              <option value="Social Media">Post / Carrossel Social Media</option>
+              <option value="Campanha Paga">Tráfego Pago (Meta / Google Ads)</option>
+              <option value="Material Gráfico">Material Gráfico / Impressão Local</option>
+              <option value="Vídeo / Reels">Edição de Vídeo / Reels</option>
+              <option value="Landing Page">Landing Page Local</option>
+              <option value="Outro">Outro Ajuste Geral</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="portalTitle" class="form-label">TÍTULO RESUMIDO DA DEMANDA *</label>
+          <input type="text" id="portalTitle" class="form-input" placeholder="Ex: Campanha Especial de Vendas da Unidade" required>
+        </div>
+
+        <div class="form-group">
+          <label for="portalDesc" class="form-label">DESCRIÇÃO DETALHADA DO QUE VOCÊ PRECISA *</label>
+          <textarea id="portalDesc" class="form-textarea" rows="4" placeholder="Explique objetivo, textos necessários, referências ou instruções específicas para a produção..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="portalLink" class="form-label">LINK DE REFERÊNCIA OU BRIEFING (OPCIONAL)</label>
+          <input type="url" id="portalLink" class="form-input" placeholder="Google Drive, Dropbox, Canva, Figma...">
+          <small style="font-size: 0.76rem; color: var(--text-muted);">
+            ℹ️ O prazo oficial de entrega será estipulado e informado pela equipe NEXXO após a análise inicial do escopo.
+          </small>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+          <button type="submit" class="btn btn-dark-blue" style="padding: 12px 32px; font-size: 0.98rem; height: auto;">
+            🚀 Enviar Demanda para Produção
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- Acompanhamento em Tempo Real das Demandas da Franquia -->
+    <section class="portal-card-form">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <div>
+          <h2 class="section-title" style="margin-bottom: 2px; border: none; padding: 0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+            Status das Demandas
+          </h2>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Clique no card para ver prazo oficial, data de envio e detalhes completos.</span>
+        </div>
+
+        <button class="btn btn-secondary" onclick="renderTrackingCards()" style="font-size: 0.8rem; height: 32px;">
+          🔄 Atualizar
+        </button>
+      </div>
+
+      <div id="trackingCardsContainer" class="tracking-grid">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       MODAL DE DETALHES DO CARD (PORTAL DO FRANQUEADO)
+       ========================================================================= -->
+  <div id="portalCardDetailModal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 580px;">
+      
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <span id="detailModalCardId" class="card-id-code">#DEM-XXXX</span>
+            <span id="detailModalStageBadge" class="pipeline-step-badge pipe-demandas">Demandas</span>
+          </div>
+          <h3 id="detailModalTitle" style="font-family:var(--font-display); font-size:1.15rem; color:var(--text-main);"></h3>
+        </div>
+        <button class="modal-close-btn" onclick="closePortalDetailModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Prazos e Datas -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; background:var(--bg-column); padding:14px; border-radius:var(--radius-md);">
+          <div>
+            <span style="font-size:0.72rem; font-weight:700; color:var(--text-subtle); text-transform:uppercase;">ENVIADO POR VOCÊ EM</span>
+            <p id="detailModalSubmittedAt" style="font-weight:600; font-size:0.85rem; color:var(--text-main); margin-top:2px;"></p>
+          </div>
+          <div>
+            <span style="font-size:0.72rem; font-weight:700; color:var(--text-subtle); text-transform:uppercase;">PRAZO DEFINIDO PELA EQUIPE</span>
+            <p id="detailModalTeamDeadline" style="font-weight:700; font-size:0.88rem; color:#ea580c; margin-top:2px;"></p>
+          </div>
+        </div>
+
+        <!-- Descrição -->
+        <div>
+          <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">DESCRIÇÃO DA DEMANDA</span>
+          <p id="detailModalDesc" style="font-size:0.9rem; color:var(--text-main); line-height:1.5; background:#ffffff; border:1px solid var(--border-light); padding:12px; border-radius:var(--radius-md); margin-top:6px; white-space:pre-wrap;"></p>
+        </div>
+
+        <!-- Link Anexo Oficial para o Sistema Nexxo -->
+        <div>
+          <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">LINK ANEXO DO SISTEMA</span>
+          <div style="margin-top:6px;">
+            <a href="https://sistema.nexxoplat.com/crm" target="_blank" class="btn btn-outline-primary" style="width:100%; justify-content:center;">
+              🔗 Acessar Sistema Nexxo (https://sistema.nexxoplat.com/crm)
+            </a>
+          </div>
+        </div>
+
+        <!-- Checklist de Subtarefas -->
+        <div>
+          <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">PROGRESSO OPERACIONAL</span>
+          <div id="detailModalChecklist" style="margin-top:6px; display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closePortalDetailModal()">Fechar</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let currentClientName = 'Nexxo Jardins';
+    let currentWorkspace = 'nexxo-jardins';
+
+    // Lê parâmetros da URL se existirem (?client=... ou ?card=...)
+    function initPortalWorkspace() {
+      const params = new URLSearchParams(window.location.search);
+      const clientParam = params.get('client');
+      const cardParam = params.get('card');
+
+      const data = StorageManager.getData();
+
+      if (clientParam) {
+        currentClientName = decodeURIComponent(clientParam);
+      } else if (cardParam) {
+        const targetCard = data.cards.find(c => c.id === cardParam);
+        if (targetCard) {
+          currentClientName = targetCard.clientName;
+          
+          // Verifica se o link foi desativado pela equipe
+          if (targetCard.shareLinkActive === false) {
+            document.getElementById('disabledLinkBanner').style.display = 'flex';
+            document.getElementById('portalFormSection').style.opacity = '0.5';
+            document.getElementById('portalFormSection').style.pointerEvents = 'none';
+          }
+        }
+      }
+
+      document.getElementById('fixedClientNameDisplay').textContent = currentClientName;
+      document.getElementById('fixedWorkspaceDisplay').textContent = `Workspace fixado para esta unidade`;
+      document.getElementById('portalClientHidden').value = currentClientName;
+
+      renderTrackingCards();
+    }
+
+    function handlePortalSubmit(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('portalTitle').value.trim();
+      const desc = document.getElementById('portalDesc').value.trim();
+      const category = document.getElementById('portalCategory').value;
+      const link = document.getElementById('portalLink').value.trim();
+
+      const now = new Date();
+      const submittedAt = `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      const cardId = `DEM-${randomNum}`;
+
+      // Card entra na coluna DEMANDAS, com status PENDENTE e sem prazo definido (pois quem define é a equipe)
+      const newDemand = {
+        id: cardId,
+        title: title,
+        description: desc,
+        clientName: currentClientName,
+        workspace: currentWorkspace,
+        statusChip: 'Pendente de Análise',
+        columnId: 'demandas',
+        priority: 'Alta',
+        assignees: ['m1'],
+        submittedAt: submittedAt,
+        teamDeadline: null, // Sem prazo definido pelo franqueado!
+        teamDeadlineFormatted: 'Pendente de Definição',
+        isPendingAnalysis: true,
+        shareLinkActive: true,
+        commentsCount: 0,
+        linksCount: 1,
+        driveLink: 'https://sistema.nexxoplat.com/crm',
+        checklist: [
+          { text: 'Validação do escopo da solicitação', done: false },
+          { text: 'Definição oficial do prazo de entrega', done: false },
+          { text: 'Execução e entrega dos materiais', done: false }
+        ],
+        comments: [],
+        history: [
+          { 
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 
+            text: `Demanda enviada pelo franqueado ${currentClientName} (${category})` 
+          }
+        ]
+      };
+
+      StorageManager.addCard(newDemand);
+      App.showToast(`Demanda #${cardId} cadastrada com sucesso!`, 'success');
+
+      document.getElementById('portalTitle').value = '';
+      document.getElementById('portalDesc').value = '';
+      document.getElementById('portalLink').value = '';
+
+      renderTrackingCards();
+    }
+
+    function renderTrackingCards() {
+      const data = StorageManager.getData();
+      const container = document.getElementById('trackingCardsContainer');
+      if (!container) return;
+
+      const columnLabels = {
+        demandas: '1. Demandas (Triagem)',
+        conteudo: '2. Em Produção (Conteúdo)',
+        designer: '3. Em Criação (Designer)',
+        trafego: '4. Em Parametrização (Tráfego)',
+        aprovacao: '5. Aguardando Aprovação',
+        entrega: '6. Pronto para Entrega ✓'
+      };
+
+      // Filtra demandas deste franqueado
+      const clientCards = data.cards.filter(c => c.clientName === currentClientName);
+
+      if (clientCards.length === 0) {
+        container.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding:20px; color:var(--text-muted); font-size:0.9rem;">Nenhuma demanda cadastrada para esta unidade ainda.</p>`;
+        return;
+      }
+
+      container.innerHTML = clientCards.map(c => {
+        const deadlineText = c.teamDeadlineFormatted || 'Pendente de Definição';
+        const isPending = c.isPendingAnalysis || !c.teamDeadline;
+
+        return `
+          <div class="tracking-card" onclick="openPortalDetailModal('${c.id}')">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span class="pipeline-step-badge pipe-${c.columnId}">
+                ${columnLabels[c.columnId] || c.columnId}
+              </span>
+              <span class="card-id-code">#${c.id}</span>
+            </div>
+
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-top: 4px;">
+              ${c.title}
+            </h4>
+
+            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              ${c.description}
+            </p>
+
+            <div style="font-size: 0.76rem; color: var(--text-subtle); display: flex; flex-direction: column; gap: 4px; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
+              <span>Enviado: ${c.submittedAt || '16/09/2026'}</span>
+              <span style="font-weight: 700; color: ${isPending ? '#ea580c' : 'var(--primary)'};">
+                Prazo: ${deadlineText}
+              </span>
+              <a href="https://sistema.nexxoplat.com/crm" target="_blank" onclick="event.stopPropagation()" style="color:var(--primary); font-weight:600; font-size:0.75rem; margin-top:2px;">
+                Link Anexo (CRM) ↗
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openPortalDetailModal(cardId) {
+      const data = StorageManager.getData();
+      const card = data.cards.find(c => c.id === cardId);
+      if (!card) return;
+
+      const columnLabels = {
+        demandas: '1. Demandas (Triagem)',
+        conteudo: '2. Em Produção (Conteúdo)',
+        designer: '3. Em Criação (Designer)',
+        trafego: '4. Em Parametrização (Tráfego)',
+        aprovacao: '5. Aguardando Aprovação',
+        entrega: '6. Pronto para Entrega ✓'
+      };
+
+      document.getElementById('detailModalCardId').textContent = `#${card.id}`;
+      document.getElementById('detailModalTitle').textContent = card.title;
+      document.getElementById('detailModalStageBadge').className = `pipeline-step-badge pipe-${card.columnId}`;
+      document.getElementById('detailModalStageBadge').textContent = columnLabels[card.columnId] || card.columnId;
+
+      document.getElementById('detailModalSubmittedAt').textContent = card.submittedAt || 'Não registrado';
+      document.getElementById('detailModalTeamDeadline').textContent = card.teamDeadlineFormatted || 'Aguardando Definição pela Equipe';
+      document.getElementById('detailModalDesc').textContent = card.description || 'Sem descrição cadastrada.';
+
+      const chkContainer = document.getElementById('detailModalChecklist');
+      if (card.checklist && card.checklist.length > 0) {
+        chkContainer.innerHTML = card.checklist.map(ch => `
+          <div style="display:flex; align-items:center; gap:8px; font-size:0.84rem; color:${ch.done ? 'var(--text-subtle)' : 'var(--text-main)'};">
+            <span>${ch.done ? '✓' : '○'}</span>
+            <span style="${ch.done ? 'text-decoration:line-through;' : ''}">${ch.text}</span>
+          </div>
+        `).join('');
+      } else {
+        chkContainer.innerHTML = '<span style="font-size:0.8rem; color:var(--text-subtle);">Nenhuma etapa adicional.</span>';
+      }
+
+      document.getElementById('portalCardDetailModal').classList.add('is-active');
+    }
+
+    function closePortalDetailModal() {
+      document.getElementById('portalCardDetailModal').classList.remove('is-active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initPortalWorkspace();
+    });
+  </script>
+</body>
+</html>
