@@ -53,10 +53,12 @@ const Modals = {
     this.activeModal = null;
   },
 
+  newCardSubtasks: [],
+
   // =========================================================================
-  // 1. MODAL UNIFICADO: "NOVO CARD" (IMAGEM 2)
+  // 1. MODAL UNIFICADO: "NOVO CARD" (IMAGEM 2) COM SUBTAREFAS OPERACIONAIS
   // =========================================================================
-  openNewCardModal(defaultColumnId = 'demandas') {
+  openNewCardModal(defaultColumnId = 'entradas') {
     const data = StorageManager.getData();
     const colSelect = document.getElementById('ncColumn');
     const respSelect = document.getElementById('ncAssignee');
@@ -93,8 +95,64 @@ const Modals = {
     document.getElementById('ncContactSearch').value = '';
     document.getElementById('ncPriority').value = 'Sem prioridade';
     document.getElementById('ncDueDate').value = '';
+    const subtaskInput = document.getElementById('ncSubtaskInput');
+    if (subtaskInput) subtaskInput.value = '';
+
+    // Subtarefas operacionais padrão para agilizar o fluxo
+    this.newCardSubtasks = [
+      'Validação de briefing e escopo',
+      'Produção e execução da demanda'
+    ];
+    this.renderModalSubtasks();
 
     this.openModal('modalNewCard');
+  },
+
+  addModalSubtask() {
+    const input = document.getElementById('ncSubtaskInput');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (!this.newCardSubtasks) this.newCardSubtasks = [];
+    this.newCardSubtasks.push(text);
+    input.value = '';
+    input.focus();
+    this.renderModalSubtasks();
+  },
+
+  removeModalSubtask(index) {
+    if (!this.newCardSubtasks) return;
+    this.newCardSubtasks.splice(index, 1);
+    this.renderModalSubtasks();
+  },
+
+  renderModalSubtasks() {
+    const list = document.getElementById('ncSubtasksList');
+    const count = document.getElementById('ncSubtasksCount');
+    if (!list) return;
+    if (!this.newCardSubtasks) this.newCardSubtasks = [];
+
+    if (count) {
+      count.textContent = `${this.newCardSubtasks.length} subtarefa${this.newCardSubtasks.length !== 1 ? 's' : ''}`;
+    }
+
+    if (this.newCardSubtasks.length === 0) {
+      list.innerHTML = '<li style="font-size:0.8rem; color:var(--text-subtle); padding:6px 0;">Nenhuma subtarefa adicionada. Digite acima para incluir.</li>';
+      return;
+    }
+
+    list.innerHTML = this.newCardSubtasks.map((task, idx) => `
+      <li style="display:flex; align-items:center; justify-content:space-between; background:#f8fafc; border:1px solid var(--border-light); padding:7px 12px; border-radius:var(--radius-sm); font-size:0.86rem;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="color:var(--primary); font-weight:700;">○</span>
+          <span style="color:var(--text-main);">${task}</span>
+        </div>
+        <button type="button" style="border:none; background:transparent; color:#ef4444; cursor:pointer; font-size:0.88rem; font-weight:700; padding:2px 6px;" onclick="Modals.removeModalSubtask(${idx})" title="Remover subtarefa">
+          ✕
+        </button>
+      </li>
+    `).join('');
   },
 
   submitNewCard() {
@@ -128,6 +186,13 @@ const Modals = {
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     const cardId = `DEM-${randomNum}`;
 
+    const checklistItems = (this.newCardSubtasks && this.newCardSubtasks.length > 0)
+      ? this.newCardSubtasks.map(text => ({ text, done: false }))
+      : [
+          { text: 'Análise de escopo e briefing', done: false },
+          { text: 'Execução e entrega da demanda', done: false }
+        ];
+
     const newCard = {
       id: cardId,
       title: title,
@@ -135,7 +200,7 @@ const Modals = {
       clientName: contactSearch || 'Nexxo Geral',
       workspace: 'nexxo-geral',
       statusChip: isPending ? 'Pendente de Análise' : 'Não Iniciado',
-      columnId: columnId,
+      columnId: columnId || 'entradas',
       priority: priority === 'Sem prioridade' ? 'Baixa' : priority,
       assignees: assignee ? [assignee] : [],
       submittedAt: submittedAt,
@@ -145,10 +210,7 @@ const Modals = {
       shareLinkActive: true,
       commentsCount: 0,
       linksCount: 1,
-      checklist: [
-        { text: 'Análise de escopo e briefing', done: false },
-        { text: 'Execução e entrega da demanda', done: false }
-      ],
+      checklist: checklistItems,
       comments: [],
       driveLink: 'https://sistema.nexxoplat.com/crm',
       history: [
@@ -259,12 +321,58 @@ const Modals = {
 
     this.activeDrawerCardId = cardId;
     const overlay = document.getElementById('cardDrawerOverlay');
+    const isAdmin = StorageManager.isAdmin();
 
     const isPending = card.isPendingAnalysis || !card.teamDeadline;
 
     // Header
     document.getElementById('drawerCardId').textContent = `#${card.id}`;
     document.getElementById('drawerCardTitle').textContent = card.title;
+
+    // Indicador e permissões de perfil no Drawer
+    const roleIndicator = document.getElementById('drawerRoleIndicator');
+    const nonAdminNotice = document.getElementById('drawerNonAdminNotice');
+    const deadlineInput = document.getElementById('drawerDeadlineInput');
+    const btnSaveDeadline = document.getElementById('drawerBtnSaveDeadline');
+    const btnEditDetails = document.getElementById('drawerBtnEditDetails');
+    const addSubtaskRow = document.getElementById('drawerAddSubtaskRow');
+
+    if (roleIndicator) {
+      if (isAdmin) {
+        roleIndicator.style.background = '#eff6ff';
+        roleIndicator.style.color = '#1d4ed8';
+        roleIndicator.style.border = '1px solid #bfdbfe';
+        roleIndicator.innerHTML = '🛡️ Administrador (Edição e Prazos Liberados)';
+      } else {
+        roleIndicator.style.background = '#fef2f2';
+        roleIndicator.style.color = '#991b1b';
+        roleIndicator.style.border = '1px solid #fecaca';
+        roleIndicator.innerHTML = '👤 Colaborador (Modo Somente Leitura)';
+      }
+    }
+
+    if (nonAdminNotice) {
+      nonAdminNotice.style.display = isAdmin ? 'none' : 'block';
+    }
+
+    if (deadlineInput) {
+      deadlineInput.disabled = !isAdmin;
+    }
+
+    if (btnSaveDeadline) {
+      btnSaveDeadline.style.display = isAdmin ? 'inline-flex' : 'none';
+    }
+
+    if (btnEditDetails) {
+      btnEditDetails.style.display = isAdmin ? 'inline-flex' : 'none';
+    }
+
+    if (addSubtaskRow) {
+      addSubtaskRow.style.display = isAdmin ? 'flex' : 'none';
+    }
+
+    // Reset modo de edição
+    this.toggleDrawerEditMode(false);
 
     const badgeEl = document.getElementById('drawerClientBadge');
     if (isPending) {
@@ -299,9 +407,17 @@ const Modals = {
     // Renderizar Comentários com Autor e Data
     this.renderDrawerComments(card);
 
-    // Checklist
+    // Checklist e Contador
     const checklistList = document.getElementById('drawerChecklistList');
+    const counterEl = document.getElementById('drawerChecklistCounter');
     checklistList.innerHTML = '';
+
+    const total = card.checklist ? card.checklist.length : 0;
+    const done = card.checklist ? card.checklist.filter(c => c.done).length : 0;
+    if (counterEl) {
+      counterEl.textContent = `${done}/${total} concluídas`;
+    }
+
     if (card.checklist && card.checklist.length > 0) {
       card.checklist.forEach((item, index) => {
         const li = document.createElement('li');
@@ -309,17 +425,24 @@ const Modals = {
         li.innerHTML = `
           <input type="checkbox" ${item.done ? 'checked' : ''} id="chk-${index}">
           <label for="chk-${index}">${item.text}</label>
+          ${isAdmin ? `
+            <button type="button" style="margin-left:auto; border:none; background:transparent; color:#94a3b8; cursor:pointer; font-size:0.8rem; padding:2px 6px;" title="Excluir subtarefa" onclick="Modals.deleteDrawerSubtask(${index})">
+              ✕
+            </button>
+          ` : ''}
         `;
         li.querySelector('input').addEventListener('change', (e) => {
           card.checklist[index].done = e.target.checked;
           StorageManager.updateCard(card.id, { checklist: card.checklist });
           li.classList.toggle('done', e.target.checked);
+          const newDone = card.checklist.filter(c => c.done).length;
+          if (counterEl) counterEl.textContent = `${newDone}/${card.checklist.length} concluídas`;
           Kanban.renderBoard();
         });
         checklistList.appendChild(li);
       });
     } else {
-      checklistList.innerHTML = '<li style="font-size:0.84rem; color:var(--text-subtle);">Nenhuma subtarefa criada.</li>';
+      checklistList.innerHTML = '<li style="font-size:0.84rem; color:var(--text-subtle); padding:6px 0;">Nenhuma subtarefa criada.</li>';
     }
 
     // Histórico de alterações
@@ -334,6 +457,10 @@ const Modals = {
     // Botão Concluir
     const btnDeliver = document.getElementById('drawerBtnDeliver');
     btnDeliver.onclick = () => {
+      if (!StorageManager.isAdmin()) {
+        App.showToast('Permissão negada: Apenas o Administrador pode mover a demanda para Entrega.', 'warning');
+        return;
+      }
       StorageManager.moveCard(card.id, 'entrega');
       Kanban.renderBoard();
       this.closeDrawer();
@@ -343,7 +470,117 @@ const Modals = {
     overlay.classList.add('is-active');
   },
 
+  toggleDrawerEditMode(forceState) {
+    const isEdit = forceState !== undefined ? forceState : (document.getElementById('drawerDescEdit').style.display !== 'flex');
+    const titleView = document.getElementById('drawerTitleViewContainer');
+    const titleEdit = document.getElementById('drawerTitleEditContainer');
+    const descView = document.getElementById('drawerDescView');
+    const descEdit = document.getElementById('drawerDescEdit');
+    const editBtn = document.getElementById('drawerBtnEditDetails');
+
+    if (isEdit && !StorageManager.isAdmin()) {
+      App.showToast('Apenas o Administrador pode editar detalhes dos cards.', 'warning');
+      return;
+    }
+
+    const data = StorageManager.getData();
+    const card = data.cards.find(c => c.id === this.activeDrawerCardId);
+
+    if (isEdit && card) {
+      document.getElementById('drawerEditTitleInput').value = card.title;
+      document.getElementById('drawerEditDescTextarea').value = card.description || '';
+      if (titleView) titleView.style.display = 'none';
+      if (titleEdit) titleEdit.style.display = 'block';
+      if (descView) descView.style.display = 'none';
+      if (descEdit) descEdit.style.display = 'flex';
+      if (editBtn) editBtn.style.display = 'none';
+    } else {
+      if (titleView) titleView.style.display = 'block';
+      if (titleEdit) titleEdit.style.display = 'none';
+      if (descView) descView.style.display = 'block';
+      if (descEdit) descEdit.style.display = 'none';
+      if (editBtn && StorageManager.isAdmin()) editBtn.style.display = 'inline-flex';
+    }
+  },
+
+  saveCardDetails() {
+    if (!StorageManager.isAdmin()) {
+      App.showToast('Apenas o Administrador pode editar detalhes dos cards.', 'warning');
+      return;
+    }
+    const cardId = this.activeDrawerCardId;
+    if (!cardId) return;
+
+    const newTitle = document.getElementById('drawerEditTitleInput').value.trim();
+    const newDesc = document.getElementById('drawerEditDescTextarea').value.trim();
+
+    if (!newTitle) {
+      alert('O título da demanda não pode ficar vazio.');
+      return;
+    }
+
+    StorageManager.updateCard(cardId, {
+      title: newTitle,
+      description: newDesc
+    });
+
+    document.getElementById('drawerCardTitle').textContent = newTitle;
+    document.getElementById('drawerDesc').textContent = newDesc || 'Nenhuma descrição fornecida.';
+    this.toggleDrawerEditMode(false);
+    Kanban.renderBoard();
+    App.showToast('Demanda atualizada com sucesso pelo Administrador!', 'success');
+  },
+
+  addDrawerSubtask() {
+    if (!StorageManager.isAdmin()) {
+      App.showToast('Apenas o Administrador pode adicionar subtarefas aos cards.', 'warning');
+      return;
+    }
+    const cardId = this.activeDrawerCardId;
+    if (!cardId) return;
+
+    const input = document.getElementById('drawerNewSubtaskInput');
+    const text = input ? input.value.trim() : '';
+    if (!text) return;
+
+    const data = StorageManager.getData();
+    const card = data.cards.find(c => c.id === cardId);
+    if (!card) return;
+
+    if (!card.checklist) card.checklist = [];
+    card.checklist.push({ text: text, done: false });
+    StorageManager.updateCard(cardId, { checklist: card.checklist });
+    input.value = '';
+
+    this.openCardDrawer(cardId);
+    Kanban.renderBoard();
+    App.showToast('Subtarefa adicionada com sucesso!', 'success');
+  },
+
+  deleteDrawerSubtask(index) {
+    if (!StorageManager.isAdmin()) {
+      App.showToast('Apenas o Administrador pode excluir subtarefas.', 'warning');
+      return;
+    }
+    const cardId = this.activeDrawerCardId;
+    if (!cardId) return;
+
+    const data = StorageManager.getData();
+    const card = data.cards.find(c => c.id === cardId);
+    if (!card || !card.checklist) return;
+
+    card.checklist.splice(index, 1);
+    StorageManager.updateCard(cardId, { checklist: card.checklist });
+    this.openCardDrawer(cardId);
+    Kanban.renderBoard();
+    App.showToast('Subtarefa removida!', 'info');
+  },
+
   saveTeamDeadlineToCard() {
+    if (!StorageManager.isAdmin()) {
+      App.showToast('Permissão negada: Apenas o Administrador pode definir ou alterar o prazo oficial.', 'warning');
+      return;
+    }
     const cardId = this.activeDrawerCardId;
     if (!cardId) return;
 

@@ -5,6 +5,7 @@
 
 const INITIAL_DATA = {
   columns: [
+    { id: 'entradas', title: 'Entradas', color: '#6366f1', count: 0 },
     { id: 'demandas', title: 'Demandas', color: '#3b82f6', count: 0 },
     { id: 'conteudo', title: 'Conteúdo', color: '#8b5cf6', count: 0 },
     { id: 'designer', title: 'Designer', color: '#f97316', count: 0 },

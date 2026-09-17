@@ -135,17 +135,15 @@
           </div>
 
           <div class="header-actions">
-            <!-- Botão Traduzido: Compartilhar -->
-            <button id="btnShareModal" class="btn btn-secondary" title="Compartilhar demandas e gerenciar acesso do franqueado">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="18" cy="5" r="3"></circle>
-                <circle cx="6" cy="12" r="3"></circle>
-                <circle cx="18" cy="19" r="3"></circle>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-              </svg>
-              Compartilhar
-            </button>
+            <!-- Seletor de Perfil de Acesso: Apenas Admin pode editar prazos e arquivar -->
+            <div class="role-selector-pill" title="Alternar perfil de acesso aos cards">
+              <span class="role-dot-indicator" id="roleDotIndicator"></span>
+              <span class="role-selector-label">Perfil:</span>
+              <select id="roleSelect" class="role-dropdown">
+                <option value="admin" selected>Administrador (Total)</option>
+                <option value="collaborator">Colaborador (Visualização)</option>
+              </select>
+            </div>
 
             <!-- Botão Unificado: + Novo Card (Azul Escuro) -->
             <button id="btnNewCardTop" class="btn btn-dark-blue" title="Criar novo card ou demanda no quadro">
@@ -280,6 +278,24 @@
 
         </div>
 
+        <!-- Seção de Subtarefas Operacionais na Criação de Card -->
+        <div class="form-group subtasks-group-box">
+          <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+              SUBTAREFAS OPERACIONAIS
+            </span>
+            <span id="ncSubtasksCount" style="font-size: 0.74rem; color: var(--text-muted); font-weight: normal;">0 subtarefas</span>
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="ncSubtaskInput" class="form-input" placeholder="Digite uma subtarefa e pressione Enter ou Adicionar..." onkeydown="if(event.key==='Enter'){event.preventDefault();Modals.addModalSubtask();}">
+            <button type="button" id="ncBtnAddSubtask" class="btn btn-secondary" style="height: 38px; padding: 0 14px; font-size: 0.82rem; white-space: nowrap;" onclick="Modals.addModalSubtask()">
+              + Adicionar
+            </button>
+          </div>
+          <ul id="ncSubtasksList" class="modal-subtasks-list" style="list-style: none; margin-top: 6px; display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto;"></ul>
+        </div>
+
         <div class="tags-section-wrapper">
           <div class="tags-header-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -368,17 +384,32 @@
     <aside id="cardDrawer" class="card-drawer">
       
       <div class="drawer-header">
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span id="drawerCardId" class="card-id-code">#DEM-XXXX</span>
-            <span id="drawerClientBadge" class="tag-client-demand">Demanda [Cliente]</span>
+        <div style="display:flex; flex-direction:column; gap:6px; width: 100%;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="drawerCardId" class="card-id-code">#DEM-XXXX</span>
+              <span id="drawerClientBadge" class="tag-client-demand">Demanda [Cliente]</span>
+            </div>
+            <button class="modal-close-btn" onclick="Modals.closeDrawer()" title="Fechar">✕</button>
           </div>
-          <h3 id="drawerCardTitle" style="font-family:var(--font-display); font-size:1.15rem; color:var(--text-main);"></h3>
+          
+          <div id="drawerRoleIndicator" style="font-size:0.75rem; font-weight:700; border-radius:var(--radius-xs); padding:3px 8px; width:fit-content;"></div>
+          
+          <div id="drawerTitleViewContainer">
+            <h3 id="drawerCardTitle" style="font-family:var(--font-display); font-size:1.15rem; color:var(--text-main);"></h3>
+          </div>
+          <div id="drawerTitleEditContainer" style="display:none; margin-top:4px;">
+            <input type="text" id="drawerEditTitleInput" class="form-input" style="font-weight:700; font-size:1rem;" placeholder="Título do card">
+          </div>
         </div>
-        <button class="modal-close-btn" onclick="Modals.closeDrawer()" title="Fechar">✕</button>
       </div>
 
       <div class="drawer-body">
+        
+        <!-- Banner de Permissão Somente Leitura se não for Admin -->
+        <div id="drawerNonAdminNotice" style="display:none; background:#fef2f2; border:1px solid #fecaca; padding:10px 14px; border-radius:var(--radius-md); font-size:0.82rem; color:#991b1b; font-weight:600;">
+          🔒 <strong>Modo Somente Leitura:</strong> Apenas o <strong>Administrador</strong> tem permissão para alterar prazos, editar descrições ou arquivar demandas.
+        </div>
         
         <!-- Informações de Envio e Etapa -->
         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; background:var(--bg-column); padding:14px; border-radius:var(--radius-md);">
@@ -396,32 +427,48 @@
           </div>
         </div>
 
-        <!-- Caixa Configurável: Definição de Prazo pela Equipe NEXXO -->
+        <!-- Caixa Configurável: Definição de Prazo pela Equipe NEXXO (Apenas Administrador) -->
         <div id="drawerDeadlineBox" class="deadline-setting-box">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <strong style="font-size:0.85rem; color:var(--text-main); display:flex; align-items:center; gap:6px;">
-              📅 Prazo Oficial de Entrega (Definido pela Equipe)
+              📅 Prazo Oficial de Entrega
             </strong>
             <span id="drawerDeadlineCurrentText" style="font-size:0.8rem; font-weight:700; color:#ea580c;"></span>
           </div>
-          <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">
-            O franqueado não escolhe a data. É você quem estipula a data de entrega final desta demanda:
+          <p id="drawerDeadlineExplanation" style="font-size:0.78rem; color:var(--text-muted); margin:0;">
+            O franqueado não escolhe a data. É você (Administrador) quem estipula a data de entrega final desta demanda:
           </p>
           <div style="display:flex; gap:8px;">
             <input type="date" id="drawerDeadlineInput" class="form-input" style="padding:6px 10px; font-size:0.88rem;">
-            <button type="button" class="btn btn-dark-blue" style="height:36px; padding:0 14px; font-size:0.82rem; white-space:nowrap;" onclick="Modals.saveTeamDeadlineToCard()">
+            <button type="button" id="drawerBtnSaveDeadline" class="btn btn-dark-blue" style="height:36px; padding:0 14px; font-size:0.82rem; white-space:nowrap;" onclick="Modals.saveTeamDeadlineToCard()">
               Salvar Prazo
             </button>
           </div>
         </div>
 
-        <!-- Descrição -->
+        <!-- Descrição da Demanda (com suporte a edição pelo Admin) -->
         <div>
-          <h4 class="drawer-section-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-            Descrição da Demanda
-          </h4>
-          <p id="drawerDesc" style="font-size:0.9rem; color:var(--text-main); line-height:1.6; white-space:pre-wrap; background:#ffffff; border:1px solid var(--border-light); padding:14px; border-radius:var(--radius-md);"></p>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <h4 class="drawer-section-title" style="margin-bottom:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              Descrição da Demanda
+            </h4>
+            <button type="button" id="drawerBtnEditDetails" class="btn btn-secondary" style="height:28px; padding:0 10px; font-size:0.75rem;" onclick="Modals.toggleDrawerEditMode()">
+              ✏️ Editar
+            </button>
+          </div>
+
+          <div id="drawerDescView">
+            <p id="drawerDesc" style="font-size:0.9rem; color:var(--text-main); line-height:1.6; white-space:pre-wrap; background:#ffffff; border:1px solid var(--border-light); padding:14px; border-radius:var(--radius-md);"></p>
+          </div>
+
+          <div id="drawerDescEdit" style="display:none; flex-direction:column; gap:8px;">
+            <textarea id="drawerEditDescTextarea" class="form-textarea" rows="4" style="font-size:0.88rem;" placeholder="Nova descrição da demanda..."></textarea>
+            <div style="display:flex; gap:8px; justify-content:flex-end;">
+              <button type="button" class="btn btn-secondary" style="height:32px; padding:0 12px; font-size:0.78rem;" onclick="Modals.toggleDrawerEditMode(false)">Cancelar</button>
+              <button type="button" class="btn btn-dark-blue" style="height:32px; padding:0 14px; font-size:0.78rem;" onclick="Modals.saveCardDetails()">Salvar Alterações</button>
+            </div>
+          </div>
         </div>
 
         <!-- Link Anexo Oficial -->
@@ -462,11 +509,21 @@
 
         <!-- Checklist de Subtarefas -->
         <div>
-          <h4 class="drawer-section-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-            Subtarefas Operacionais
-          </h4>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <h4 class="drawer-section-title" style="margin-bottom:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+              Subtarefas Operacionais
+            </h4>
+            <span id="drawerChecklistCounter" style="font-size:0.76rem; font-weight:700; color:var(--text-muted);"></span>
+          </div>
           <ul id="drawerChecklistList" class="drawer-checklist"></ul>
+          
+          <div id="drawerAddSubtaskRow" style="display:flex; gap:8px; margin-top:10px;">
+            <input type="text" id="drawerNewSubtaskInput" class="form-input" placeholder="Adicionar nova subtarefa..." style="padding:6px 10px; font-size:0.84rem;" onkeydown="if(event.key==='Enter'){event.preventDefault();Modals.addDrawerSubtask();}">
+            <button type="button" class="btn btn-secondary" style="height:34px; padding:0 12px; font-size:0.8rem; white-space:nowrap;" onclick="Modals.addDrawerSubtask()">
+              + Adicionar
+            </button>
+          </div>
         </div>
 
         <!-- Histórico -->

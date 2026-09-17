@@ -167,6 +167,7 @@
       width: fit-content;
     }
 
+    .pipe-entradas { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
     .pipe-demandas { background: #eff6ff; color: #1d4ed8; }
     .pipe-conteudo { background: #f5f3ff; color: #6d28d9; }
     .pipe-designer { background: #fff7ed; color: #c2410c; }
@@ -435,7 +436,7 @@
       const randomNum = Math.floor(1000 + Math.random() * 9000);
       const cardId = `DEM-${randomNum}`;
 
-      // Card entra na coluna DEMANDAS, com status PENDENTE e sem prazo definido (pois quem define é a equipe)
+      // Card entra na coluna ENTRADAS, com status PENDENTE e sem prazo definido (pois quem define é a equipe)
       const newDemand = {
         id: cardId,
         title: title,
@@ -443,7 +444,7 @@
         clientName: currentClientName,
         workspace: currentWorkspace,
         statusChip: 'Pendente de Análise',
-        columnId: 'demandas',
+        columnId: 'entradas',
         priority: 'Alta',
         assignees: ['m1'],
         submittedAt: submittedAt,
@@ -484,12 +485,13 @@
       if (!container) return;
 
       const columnLabels = {
-        demandas: '1. Demandas (Triagem)',
-        conteudo: '2. Em Produção (Conteúdo)',
-        designer: '3. Em Criação (Designer)',
-        trafego: '4. Em Parametrização (Tráfego)',
-        aprovacao: '5. Aguardando Aprovação',
-        entrega: '6. Pronto para Entrega ✓'
+        entradas: '1. Entradas (Recebidas)',
+        demandas: '2. Demandas (Triagem)',
+        conteudo: '3. Em Produção (Conteúdo)',
+        designer: '4. Em Criação (Designer)',
+        trafego: '5. Em Parametrização (Tráfego)',
+        aprovacao: '6. Aguardando Aprovação',
+        entrega: '7. Pronto para Entrega ✓'
       };
 
       // Filtra demandas deste franqueado
@@ -541,12 +543,13 @@
       if (!card) return;
 
       const columnLabels = {
-        demandas: '1. Demandas (Triagem)',
-        conteudo: '2. Em Produção (Conteúdo)',
-        designer: '3. Em Criação (Designer)',
-        trafego: '4. Em Parametrização (Tráfego)',
-        aprovacao: '5. Aguardando Aprovação',
-        entrega: '6. Pronto para Entrega ✓'
+        entradas: '1. Entradas (Recebidas)',
+        demandas: '2. Demandas (Triagem)',
+        conteudo: '3. Em Produção (Conteúdo)',
+        designer: '4. Em Criação (Designer)',
+        trafego: '5. Em Parametrização (Tráfego)',
+        aprovacao: '6. Aguardando Aprovação',
+        entrega: '7. Pronto para Entrega ✓'
       };
 
       document.getElementById('detailModalCardId').textContent = `#${card.id}`;

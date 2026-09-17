@@ -44,7 +44,9 @@
   --text-subtle: #94a3b8;
   --text-on-primary: #ffffff;
   
-  /* Cores das 6 Colunas Operacionais */
+  /* Cores das Colunas Operacionais */
+  --col-entradas: #6366f1;       /* Indigo para Entradas */
+  --col-entradas-bg: #eef2ff;
   --col-demandas: #3b82f6;       /* Azul royal */
   --col-demandas-bg: #eff6ff;
   --col-conteudo: #8b5cf6;       /* Roxo vibrante */

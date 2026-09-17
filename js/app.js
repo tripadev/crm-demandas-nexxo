@@ -14,7 +14,38 @@ const App = {
     this.setupShortcuts();
     this.setupTabs();
     this.setupTopButtons();
+    this.setupRoleSelector();
     this.setupShareSearch();
+  },
+
+  setupRoleSelector() {
+    const roleSelect = document.getElementById('roleSelect');
+    const dot = document.getElementById('roleDotIndicator');
+    if (!roleSelect) return;
+
+    const currentRole = StorageManager.getCurrentRole();
+    roleSelect.value = currentRole;
+    if (dot) {
+      dot.className = `role-dot-indicator ${currentRole === 'admin' ? 'is-admin' : 'is-collaborator'}`;
+    }
+
+    roleSelect.addEventListener('change', (e) => {
+      const newRole = e.target.value;
+      StorageManager.setCurrentRole(newRole);
+      if (dot) {
+        dot.className = `role-dot-indicator ${newRole === 'admin' ? 'is-admin' : 'is-collaborator'}`;
+      }
+
+      Kanban.renderBoard();
+      
+      // Se o drawer estiver aberto, recarrega com as permissões atualizadas
+      if (Modals.activeDrawerCardId) {
+        Modals.openCardDrawer(Modals.activeDrawerCardId);
+      }
+
+      const roleName = newRole === 'admin' ? 'Administrador (Acesso Total)' : 'Colaborador (Visualização)';
+      App.showToast(`Perfil alterado para: ${roleName}`, newRole === 'admin' ? 'success' : 'info');
+    });
   },
 
   setupTopButtons() {
@@ -22,15 +53,7 @@ const App = {
     const btnNewCard = document.getElementById('btnNewCardTop');
     if (btnNewCard) {
       btnNewCard.addEventListener('click', () => {
-        Modals.openNewCardModal('demandas');
-      });
-    }
-
-    // Botão Compartilhar (abre modal expansivo)
-    const btnShare = document.getElementById('btnShareModal');
-    if (btnShare) {
-      btnShare.addEventListener('click', () => {
-        Modals.openShareModal();
+        Modals.openNewCardModal('entradas');
       });
     }
   },

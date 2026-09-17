@@ -302,6 +302,62 @@ body {
   gap: 12px;
 }
 
+/* Seletor de Perfil Administrador / Colaborador */
+.role-selector-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-full);
+  padding: 4px 12px 4px 10px;
+  height: 40px;
+  box-shadow: var(--shadow-xs);
+  transition: all var(--trans-fast);
+}
+
+.role-selector-pill:hover {
+  border-color: var(--primary);
+}
+
+.role-dot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #10b981;
+}
+
+.role-dot-indicator.is-admin {
+  background-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.role-dot-indicator.is-collaborator {
+  background-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.role-selector-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-dropdown {
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  outline: none;
+  cursor: pointer;
+  padding-right: 4px;
+}
+
 /* Botões Modernos de Ação */
 .btn {
   display: inline-flex;

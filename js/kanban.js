@@ -16,6 +16,7 @@ const Kanban = {
 
   init() {
     this.renderBoard();
+    this.attachScrollHandler();
   },
 
   renderBoard() {
@@ -36,6 +37,9 @@ const Kanban = {
 
   filterCards(cards) {
     return cards.filter(card => {
+      // Ignora cards arquivados
+      if (card.archived) return false;
+
       if (this.activeFilter.search) {
         const query = this.activeFilter.search.toLowerCase();
         const matchesTitle = card.title.toLowerCase().includes(query);
@@ -164,6 +168,7 @@ const Kanban = {
     ` : '';
 
     const prioSlug = (card.priority || 'Baixa').toLowerCase();
+    const isAdmin = StorageManager.isAdmin();
 
     // Data de entrega definida pela equipe
     const dueDateDisplay = card.teamDeadlineFormatted || card.dueDateFormatted || (isPending ? 'Prazo a Definir' : 'Sem prazo');
@@ -176,12 +181,26 @@ const Kanban = {
           ${clientTagHtml}
           ${statusChipHtml}
         </div>
-        <button class="card-options-btn" title="Excluir Demanda" data-action="options">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
-        </button>
+        <div class="card-top-actions">
+          <button class="card-action-icon-btn card-share-btn" title="Copiar link para o franqueado" data-action="share">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+          </button>
+          ${isAdmin ? `
+          <button class="card-action-icon-btn card-archive-btn" title="Arquivar Demanda (Admin)" data-action="archive">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="21 8 21 21 3 21 3 8"></polyline>
+              <rect x="1" y="3" width="22" height="5"></rect>
+              <line x1="10" y1="12" x2="14" y2="12"></line>
+            </svg>
+          </button>
+          ` : ''}
+        </div>
       </div>
 
       <h4 class="card-title">${card.title}</h4>
@@ -216,22 +235,22 @@ const Kanban = {
           </svg>
           ${card.commentsCount || (card.comments ? card.comments.length : 0)} Comentários
         </span>
-        <span class="metric-item" title="Links e Anexos">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-          </svg>
-          ${card.linksCount || 1} Link
-        </span>
         ${checklistHtml}
       </div>
     `;
 
-    // Click no card para abrir o Drawer de detalhes
+    // Click no card para abrir o Drawer ou ações rápidas
     cardDiv.addEventListener('click', (e) => {
-      if (e.target.closest('[data-action="options"]')) {
+      const shareBtn = e.target.closest('[data-action="share"]');
+      if (shareBtn) {
         e.stopPropagation();
-        this.showCardQuickMenu(card);
+        this.copyCardShareLink(card);
+        return;
+      }
+      const archiveBtn = e.target.closest('[data-action="archive"]');
+      if (archiveBtn) {
+        e.stopPropagation();
+        this.promptArchiveCard(card);
         return;
       }
       Modals.openCardDrawer(card.id);
@@ -240,12 +259,41 @@ const Kanban = {
     return cardDiv;
   },
 
+  copyCardShareLink(card) {
+    const shareUrl = `${window.location.origin}/portal-franqueado.html?card=${card.id}&client=${encodeURIComponent(card.clientName || 'Nexxo Geral')}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        App.showToast(`🔗 Link da demanda #${card.id} copiado para compartilhar com o franqueado!`, 'success');
+      }).catch(() => {
+        prompt('Copie o link abaixo para enviar ao franqueado:', shareUrl);
+      });
+    } else {
+      prompt('Copie o link abaixo para enviar ao franqueado:', shareUrl);
+    }
+  },
+
+  promptArchiveCard(card) {
+    if (!StorageManager.isAdmin()) {
+      App.showToast('Apenas o Administrador pode arquivar demandas.', 'warning');
+      return;
+    }
+    const action = confirm(`Deseja arquivar a demanda #${card.id} "${card.title}"?\n\n(A demanda não será excluída, permanecendo no histórico e com segurança)`);
+    if (action) {
+      StorageManager.archiveCard(card.id);
+      this.renderBoard();
+      App.showToast(`Demanda #${card.id} arquivada com sucesso!`, 'warning');
+    }
+  },
+
   attachDragAndDropHandlers() {
     const cards = document.querySelectorAll('.kanban-card');
     const lists = document.querySelectorAll('.column-cards-list');
 
     cards.forEach(card => {
       card.addEventListener('dragstart', (e) => {
+        if (!StorageManager.isAdmin()) {
+          // Não impede totalmente arrastar para ver o efeito mas avisa caso solte
+        }
         this.draggedCardId = card.dataset.cardId;
         this.draggedCardElement = card;
         card.classList.add('is-dragging');
@@ -308,6 +356,13 @@ const Kanban = {
 
         if (!cardId || !targetColumnId) return;
 
+        // Permissão de Administrador para mover cards
+        if (!StorageManager.isAdmin()) {
+          App.showToast('Permissão negada: Apenas o Administrador pode movimentar e alterar status dos cards.', 'warning');
+          this.renderBoard();
+          return;
+        }
+
         let dropIndex = null;
         if (placeholder) {
           dropIndex = Array.from(list.children).indexOf(placeholder);
@@ -350,12 +405,29 @@ const Kanban = {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   },
 
-  showCardQuickMenu(card) {
-    const action = confirm(`Deseja excluir a demanda #${card.id} "${card.title}"?`);
-    if (action) {
-      StorageManager.deleteCard(card.id);
-      this.renderBoard();
-      App.showToast('Demanda excluída com sucesso', 'warning');
-    }
+  attachScrollHandler() {
+    const boardWrapper = document.querySelector('.kanban-board-wrapper');
+    if (!boardWrapper) return;
+
+    if (boardWrapper.dataset.scrollAttached) return;
+    boardWrapper.dataset.scrollAttached = 'true';
+
+    boardWrapper.addEventListener('wheel', (e) => {
+      // Se o mouse estiver sobre a lista interna de cards com overflow vertical
+      const cardsList = e.target.closest('.column-cards-list');
+      if (cardsList && cardsList.scrollHeight > cardsList.clientHeight) {
+        const canScrollDown = e.deltaY > 0 && cardsList.scrollTop + cardsList.clientHeight < cardsList.scrollHeight - 2;
+        const canScrollUp = e.deltaY < 0 && cardsList.scrollTop > 2;
+        if (canScrollDown || canScrollUp) {
+          return; // Permite a rolagem vertical natural dos cards
+        }
+      }
+
+      // Converte o scroll da rodinha do mouse em scroll horizontal do quadro
+      if (Math.abs(e.deltaY) > 0) {
+        e.preventDefault();
+        boardWrapper.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
   }
 };

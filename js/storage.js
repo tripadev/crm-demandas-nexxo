@@ -10,7 +10,13 @@ const StorageManager = {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Garante que a coluna 'entradas' esteja presente como primeira coluna
+        if (parsed.columns && !parsed.columns.some(c => c.id === 'entradas')) {
+          parsed.columns.unshift({ id: 'entradas', title: 'Entradas', color: '#6366f1', count: 0 });
+          this.saveData(parsed);
+        }
+        return parsed;
       }
     } catch (e) {
       console.warn('Erro ao ler do localStorage, utilizando dados padrão:', e);
@@ -110,10 +116,47 @@ const StorageManager = {
     return card.shareLinkActive;
   },
 
-  deleteCard(cardId) {
+  /**
+   * Perfil Atual do Sistema (Administrador por padrão)
+   */
+  getCurrentRole() {
+    return localStorage.getItem('NEXXO_CURRENT_ROLE') || 'admin';
+  },
+
+  setCurrentRole(role) {
+    localStorage.setItem('NEXXO_CURRENT_ROLE', role);
+  },
+
+  isAdmin() {
+    return this.getCurrentRole() === 'admin';
+  },
+
+  /**
+   * Arquivamento seguro de card (nunca excluir definitivamente)
+   */
+  archiveCard(cardId) {
     const data = this.getData();
-    data.cards = data.cards.filter(c => c.id !== cardId);
+    const card = data.cards.find(c => c.id === cardId);
+    if (!card) return null;
+
+    card.archived = true;
+    card.archivedAt = new Date().toISOString();
+
+    if (!card.history) card.history = [];
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    card.history.unshift({
+      time: timeStr,
+      text: 'Demanda arquivada pelo Administrador'
+    });
+
     this.saveData(data);
+    return card;
+  },
+
+  deleteCard(cardId) {
+    // Redireciona sempre para arquivamento conforme solicitado: nunca como excluir
+    return this.archiveCard(cardId);
   },
 
   moveCard(cardId, targetColumnId, targetIndex = null) {
